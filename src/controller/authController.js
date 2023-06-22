@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../model/user");
+const userValidate = require("../validation/user.validate");
 
 const decodPassword = async (password) => {
   return await bcrypt.hash(password, 10);
@@ -12,6 +13,8 @@ const validatePassword = async (plainPassword, hashedPassword) => {
 
 const signup = async (req, res, next) => {
   try {
+    const { error } = userValidate(req.body);
+    if (error) res.status(400).send(error.details[0].message);
     const { name, email, password, role } = req.body;
     const hashedPassword = await decodPassword(password);
     const newUser = new User({
@@ -21,15 +24,15 @@ const signup = async (req, res, next) => {
       role: role || "user",
     });
     const accessToken = jwt.sign(
-      { userId: newUser._id },
+      { userId: newUser._id, name: newUser.name, role: newUser.role },
       process.env.JWT_SECRET,
-      { expiresIn: "1d" }
+      { expiresIn: "1h" }
     );
     newUser.accessToken = accessToken;
     await newUser.save();
     res.json({ data: newUser, message: "Signup successfuly" });
   } catch (error) {
-    next(error);
+    next(error.message);
   }
 };
 
@@ -43,9 +46,13 @@ const login = async (req, res, next) => {
     const validPassword = await validatePassword(password, user.password);
     if (!validPassword) res.status(400).send("Password is incorrect");
 
-    const accessToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1d",
-    });
+    const accessToken = jwt.sign(
+      { userId: user._id, name: user.name, role: newUser.role },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1h",
+      }
+    );
 
     await User.findByIdAndUpdate(user._id, { accessToken });
     res
