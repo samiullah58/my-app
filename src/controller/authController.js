@@ -1,7 +1,10 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../model/user");
-const userValidate = require("../validation/user.validate");
+const {
+  validateSignup,
+  validateLogin,
+} = require("../validation/user.validate");
 
 const decodPassword = async (password) => {
   return await bcrypt.hash(password, 10);
@@ -13,7 +16,7 @@ const validatePassword = async (plainPassword, hashedPassword) => {
 
 const signup = async (req, res, next) => {
   try {
-    const { error } = userValidate(req.body);
+    const { error } = validateSignup(req.body);
     if (error) res.status(400).send(error.details[0].message);
     const { name, email, password, role } = req.body;
     const hashedPassword = await decodPassword(password);
@@ -38,6 +41,8 @@ const signup = async (req, res, next) => {
 
 const login = async (req, res, next) => {
   try {
+    const { error } = validateLogin(req.body);
+    if (error) res.status(400).send(error.details[0].message);
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });
@@ -47,7 +52,7 @@ const login = async (req, res, next) => {
     if (!validPassword) res.status(400).send("Password is incorrect");
 
     const accessToken = jwt.sign(
-      { userId: user._id, name: user.name, role: newUser.role },
+      { userId: user._id, name: user.name, role: user.role },
       process.env.JWT_SECRET,
       {
         expiresIn: "1h",

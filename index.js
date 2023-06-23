@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const router = require("./src/routes/route");
+const { userRouter } = require("./src/routes/user");
+const { categoryRouter } = require("./src/routes/category");
 const path = require("path");
 
 const app = express();
@@ -12,13 +13,14 @@ require("dotenv").config({
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 
-require("./src/startup/db")();
-
 app.get("/", async (req, res) => {
   res.send("This is my HOME Page");
 });
+app.use("/", userRouter);
+app.use("/", categoryRouter);
+require("./src/startup/db")();
 
-app.use("/", router);
+console.log(process.env.NODE_ENV);
 
 const port = process.env.PORT || 3000;
 
