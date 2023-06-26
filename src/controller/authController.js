@@ -4,6 +4,7 @@ const User = require("../model/user");
 const {
   validateSignup,
   validateLogin,
+  validateLogout,
 } = require("../validation/user.validate");
 
 const decodPassword = async (password) => {
@@ -19,6 +20,9 @@ const signup = async (req, res, next) => {
     const { error } = validateSignup(req.body);
     if (error) res.status(400).send(error.details[0].message);
     const { name, email, password, role } = req.body;
+    const user = await User.findOne({ email });
+    if (user)
+      res.status(400).send("this user is already registered please login");
     const hashedPassword = await decodPassword(password);
     const newUser = new User({
       name,
@@ -70,6 +74,8 @@ const login = async (req, res, next) => {
 
 const logout = async (req, res, next) => {
   try {
+    const { error } = validateLogout(req.body);
+    if (error) res.status(400).send(error.details[0].message);
     const { email } = req.body;
     const user = await User.findOne({ email });
     if (!user) res.status(404).send("Something went wrong");
@@ -77,7 +83,7 @@ const logout = async (req, res, next) => {
     await User.findByIdAndUpdate(user._id, { accessToken: null });
     res.status(200).send("successfuly lougout");
   } catch (error) {
-    res.send(error);
+    next(error.message);
   }
 };
 

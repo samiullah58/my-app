@@ -3,6 +3,8 @@ const bodyParser = require("body-parser");
 const { userRouter } = require("./src/routes/user");
 const { categoryRouter } = require("./src/routes/category");
 const path = require("path");
+const { productRouter } = require("./src/routes/product");
+const { quizRouter } = require("./src/routes/quiz");
 
 const app = express();
 
@@ -18,6 +20,8 @@ app.get("/", async (req, res) => {
 });
 app.use("/", userRouter);
 app.use("/", categoryRouter);
+app.use("/", productRouter);
+app.use("/", quizRouter);
 require("./src/startup/db")();
 
 console.log(process.env.NODE_ENV);

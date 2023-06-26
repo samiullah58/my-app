@@ -17,3 +17,10 @@ module.exports.validateLogin = function validate(user) {
   });
   return schema.validate(user);
 };
+
+module.exports.validateLogout = function validate(user) {
+  const schema = Joi.object({
+    email: Joi.string().required().email(),
+  });
+  return schema.validate(user);
+};
