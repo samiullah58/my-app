@@ -1,4 +1,5 @@
 const Quiz = require("../model/quiz");
+const { validateQuiz } = require("../validation/quiz.validate");
 
 const createQuiz = async (req, res, next) => {
   try {

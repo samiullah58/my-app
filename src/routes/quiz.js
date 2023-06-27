@@ -4,7 +4,12 @@ const { quizController } = require("../controller/quizController");
 const { userController } = require("../controller/userController");
 const auth = require("../middleware/auth");
 
-router.post("/quiz", userController.allowIfLoggedin, quizController.createQuiz);
+router.post(
+  "/quiz",
+  auth,
+  userController.allowIfLoggedin,
+  quizController.createQuiz
+);
 router.get(
   "/quiz",
   auth,
