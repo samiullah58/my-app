@@ -18,10 +18,7 @@ app.use(express.json());
 app.get("/", async (req, res) => {
   res.send("This is my HOME Page");
 });
-app.use("/", userRouter);
-app.use("/", categoryRouter);
-app.use("/", productRouter);
-app.use("/", quizRouter);
+app.use("/", [userRouter, categoryRouter, productRouter, quizRouter]);
 require("./src/startup/db")();
 
 console.log(process.env.NODE_ENV);

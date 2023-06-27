@@ -31,4 +31,30 @@ const getQuiz = async (req, res) => {
   res.send(newQuiz);
 };
 
-module.exports.quizController = { createQuiz, getQuizes, getQuiz };
+const updateQuiz = async (req, res) => {
+  const { error } = req.body;
+  if (error) res.status(400).send(error.details[0].message);
+
+  const newQuiz = await Quiz.findByIdAndUpdate(
+    req.params.id,
+    { question: req.body.question, options: req.body.options },
+    { new: true }
+  );
+  res.send(newQuiz);
+};
+
+const deleteQuiz = async (req, res) => {
+  const { error } = req.body;
+  if (error) res.status(400).send(error.details[0].message);
+
+  const newQuiz = await Quiz.findByIdAndDelete(req.params.id);
+  res.send("question has been deleted!");
+};
+
+module.exports.quizController = {
+  createQuiz,
+  getQuizes,
+  getQuiz,
+  updateQuiz,
+  deleteQuiz,
+};
